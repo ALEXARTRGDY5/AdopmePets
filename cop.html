@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Keikeiaa — Mis Mascotas</title>
+
+  <!-- Fuente limpia -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: linear-gradient(180deg,#dffbf4 0%, #e9f9ff 100%);
+      --card: rgba(255,255,255,0.78);
+      --accent: linear-gradient(90deg,#ff9f1c,#ff6b6b);
+      --muted:#6b7280;
+      --text:#0f172a;
+      --glass: rgba(255,255,255,0.6);
+      --r:#e93b81;
+      --n:#2ecc71;
+      --m:#6c5ce7;
+      --count-bg: linear-gradient(180deg,#ffb347,#ff9f1c);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, Arial, sans-serif;
+      background: var(--bg);
+      color:var(--text);
+      padding:22px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    header{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      justify-content:space-between;
+      max-width:1200px;
+      margin:0 auto 18px;
+    }
+    .brand-link{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      text-decoration:none;
+      color:var(--text);
+    }
+    .brand-avatar{
+      width:44px;height:44px;border-radius:8px;overflow:hidden;border:2px solid rgba(255,255,255,0.6);
+      box-shadow:0 8px 20px rgba(2,6,23,0.08);
+      display:flex;align-items:center;justify-content:center;background:white;
+    }
+    .brand-avatar img{ width:44px;height:44px;object-fit:cover;display:block; }
+
+    .brand-text{
+      display:flex;flex-direction:column;line-height:1;
+    }
+    .brand-text .user{
+      font-weight:700;font-size:16px;
+    }
+    .brand-text .small{
+      font-size:12px;color:var(--muted);
+    }
+
+    .controls{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    .btn {
+      background:var(--glass);
+      border:1px solid rgba(15,23,42,0.06);
+      padding:8px 12px;
+      border-radius:10px;
+      font-weight:600;
+      cursor:pointer;
+      font-size:13px;
+      color:var(--text);
+      transition: transform .12s, box-shadow .12s;
+    }
+    .btn:hover{ transform: translateY(-2px); }
+    .btn.active{ box-shadow:0 6px 18px rgba(15,23,42,0.12); background: linear-gradient(90deg,#ffffff,#fff7f0); }
+
+    .buy-btn{
+      background: linear-gradient(90deg,#00aaff,#0066ff);
+      color: white;
+      border: none;
+      box-shadow: 0 10px 28px rgba(0,102,255,0.16);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:8px 14px;
+      border-radius:10px;
+      cursor:pointer;
+    }
+    .buy-btn small{ font-weight:700; font-size:12px; opacity:0.95; }
+
+    main{ max-width:1200px; margin:12px auto 60px; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill,minmax(140px,1fr));
+      gap:14px;
+      align-items:start;
+    }
+
+    .pet{
+      background: var(--card);
+      border-radius:14px;
+      padding:10px;
+      position:relative;
+      text-align:center;
+      box-shadow: 0 6px 18px rgba(12,18,26,0.06);
+      transition: transform .18s, box-shadow .18s;
+      min-height:150px;
+      overflow:visible;
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+    .pet:hover{ transform: translateY(-6px) scale(1.01); box-shadow: 0 18px 40px rgba(12,18,26,0.12); }
+
+    .pet-image{ width:92px; height:92px; margin:6px auto 6px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01)); border:1px solid rgba(0,0,0,0.03); }
+    .pet-image img{ width:86px;height:86px;object-fit:contain;display:block; }
+
+    .count-badge{ position:absolute; top:8px; right:8px; width:28px;height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:13px; box-shadow:0 6px 14px rgba(0,0,0,0.15); background: var(--count-bg); border: 2px solid rgba(255,255,255,0.25); }
+
+    .pet-meta{ font-size:12px;color:var(--muted);margin-top:6px; }
+
+    .props{ display:flex; justify-content:center; gap:6px; margin-top:8px; padding:0; }
+    .badge{ min-width:26px; height:26px; border-radius:13px; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:12px; padding:0 8px; margin:0; box-shadow:0 6px 12px rgba(0,0,0,0.06); }
+    .R{ background: linear-gradient(90deg,var(--r), #ff6a9b); }
+    .N{ background: linear-gradient(90deg,var(--n), #2fe082); }
+    .M{ background: linear-gradient(90deg,var(--m), #8b7cff); }
+    .no-props{ height:30px; margin-top:6px; opacity:0.6; color:var(--muted); font-size:12px; }
+
+    /* modal */
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; z-index:9999; }
+    .modal{ background:white; padding:18px; border-radius:12px; width:92%; max-width:420px; box-shadow:0 24px 60px rgba(2,6,23,0.35); }
+    .modal h3{ margin:0 0 8px; font-size:18px; }
+    .modal p{ margin:8px 0 14px; color:var(--muted); font-size:14px; }
+    .modal .actions{ display:flex; gap:8px; justify-content:flex-end; }
+    .modal .btn.cancel{ background:#f3f4f6; color:#111; }
+    .modal .btn.confirm{ background:linear-gradient(90deg,#00aaff,#0066ff); color:#fff; border:none; }
+
+    @media (max-width:900px){
+      .grid{ grid-template-columns: repeat(auto-fill,minmax(120px,1fr)); gap:10px; }
+      .pet{ min-height:140px; padding:8px; border-radius:12px; }
+      .pet-image{ width:80px;height:80px }
+      .count-badge{ width:24px;height:24px;font-size:12px; right:6px; top:6px; }
+    }
+    @media (max-width:420px){
+      header{ padding:0 6px; flex-direction:column; gap:8px; align-items:flex-start;}
+      .controls{ width:100%; justify-content:flex-start; flex-wrap:wrap;}
+      .grid{ gap:8px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <!-- clickable brand (avatar + username) - opens Roblox profile in new tab -->
+    <a class="brand-link" href="https://www.roblox.com/es/users/1777711577/profile" target="_blank" rel="noopener noreferrer" aria-label="Ir al perfil de Roblox de Keikeiaa">
+      <div class="brand-avatar" title="Keikeiaa">
+        <img src="https://tr.rbxcdn.com/30DAY-AvatarHeadshot-B79FF115C6CC70DA11178FEEE46C59EA-Png/150/150/AvatarHeadshot/Webp/noFilter" alt="Avatar Keikeiaa">
+      </div>
+      <div class="brand-text">
+        <div class="user">Keikeiaa</div>
+        <div class="small">Haz clic para ver mi perfil en Roblox</div>
+      </div>
+    </a>
+
+    <div class="controls">
+      <div class="legend" title="Leyenda de propiedades" style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;">
+        <span style="display:inline-flex;align-items:center;gap:6px"><span class="dot" style="background:var(--r);width:12px;height:12px;border-radius:50%;display:inline-block"></span>R</span>
+        <span style="display:inline-flex;align-items:center;gap:6px"><span class="dot" style="background:var(--n);width:12px;height:12px;border-radius:50%;display:inline-block"></span>N</span>
+        <span style="display:inline-flex;align-items:center;gap:6px"><span class="dot" style="background:var(--m);width:12px;height:12px;border-radius:50%;display:inline-block"></span>M</span>
+      </div>
+
+      <button class="btn active" data-filter="all">Todos</button>
+      <button class="btn" data-filter="R">R</button>
+      <button class="btn" data-filter="N">N</button>
+      <button class="btn" data-filter="M">M</button>
+
+      <!-- BUY button -->
+      <button id="buyAll" class="buy-btn" title="Comprar todas las mascotas por $20">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="transform:translateY(1px)"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7 13l-1.2 6.2A1 1 0 0 0 6.8 21h10.4a1 1 0 0 0 .98-.78L19 13" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <small>Comprar todo — $20</small>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid" id="mascotas"></div>
+  </main>
+
+  <!-- Modal root -->
+  <div id="modalRoot" style="display:none;"></div>
+
+  <!-- PayPal form (hidden) -->
+  <form id="paypalForm" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="display:none">
+    <input type="hidden" name="cmd" value="_xclick">
+    <input type="hidden" name="business" value="trotoliso@gmail.com">
+    <input type="hidden" name="item_name" value="Compra de todas las mascotas (Catálogo)">
+    <input type="hidden" name="amount" value="20.00">
+    <input type="hidden" name="currency_code" value="USD">
+    <input type="hidden" name="custom" id="paypalCustom" value="">
+    <input type="hidden" name="return" value="">
+  </form>
+
+  <script>
+    // --- datos (126 elementos) ---
+    const datos = [
+{ cantidad:5, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},{ cantidad:1, prop:"R"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:2, prop:"Ninguna"},{ cantidad:3, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:2, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:2, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:2, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:3, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:3, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},{ cantidad:5, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:4, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:4, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:4, prop:"Ninguna"},
+{ cantidad:1, prop:"N"},{ cantidad:5, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},{ cantidad:4, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:4, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},{ cantidad:3, prop:"Ninguna"},
+{ cantidad:4, prop:"Ninguna"},{ cantidad:4, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:3, prop:"Ninguna"},{ cantidad:3, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"R"},{ cantidad:4, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"M"},{ cantidad:2, prop:"Ninguna"},
+{ cantidad:2, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:4, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},{ cantidad:6, prop:"Ninguna"},
+{ cantidad:2, prop:"Ninguna"},{ cantidad:8, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"N"},
+{ cantidad:10, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},{ cantidad:2, prop:"Ninguna"},
+{ cantidad:1, prop:"N"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"N"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:10, prop:"Ninguna"},{ cantidad:1, prop:"N"},
+{ cantidad:3, prop:"Ninguna"},{ cantidad:14, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:20, prop:"Ninguna"},{ cantidad:8, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},
+{ cantidad:4, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:3, prop:"Ninguna"},
+{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"},{ cantidad:1, prop:"Ninguna"}
+    ];
+
+    const imagenes = [
+    "https://adoptmetradingvalues.com/images/3049.png",
+    "https://adoptmetradingvalues.com/images/53.png",
+    "https://adoptmetradingvalues.com/images/53.png",
+    "https://adoptmetradingvalues.com/images/2467.png",
+    "https://adoptmetradingvalues.com/images/2956.png",
+    "https://adoptmetradingvalues.com/images/46.png",
+    "https://adoptmetradingvalues.com/images/1216.png",
+    "https://adoptmetradingvalues.com/images/2054.png",
+    "https://adoptmetradingvalues.com/images/1725.png",
+    "https://adoptmetradingvalues.com/images/2256.png",
+    "https://adoptmetradingvalues.com/images/1057.png",
+    "https://adoptmetradingvalues.com/images/1733.png",
+    "https://adoptmetradingvalues.com/images/1225.png",
+    "https://adoptmetradingvalues.com/images/97.png",
+    "https://adoptmetradingvalues.com/images/1958.png",
+    "https://adoptmetradingvalues.com/images/1982.png",
+    "https://adoptmetradingvalues.com/images/1473.png",
+    "https://adoptmetradingvalues.com/images/2074.png",
+    "https://adoptmetradingvalues.com/images/1816.png",
+    "https://adoptmetradingvalues.com/images/82.png",
+    "https://adoptmetradingvalues.com/images/1426.png",
+    "https://adoptmetradingvalues.com/images/1817.png",
+    "https://adoptmetradingvalues.com/images/105.png",
+    "https://adoptmetradingvalues.com/images/1170.png",
+    "https://adoptmetradingvalues.com/images/1228.png",
+    "https://adoptmetradingvalues.com/images/99.png",
+    "https://adoptmetradingvalues.com/images/1068.png",
+    "https://adoptmetradingvalues.com/images/106.png",
+    "https://adoptmetradingvalues.com/images/3047.png",
+    "https://adoptmetradingvalues.com/images/2252.png",
+    "https://adoptmetradingvalues.com/images/1607.png",
+    "https://adoptmetradingvalues.com/images/2710.png",
+    "https://adoptmetradingvalues.com/images/1215.png",
+    "https://adoptmetradingvalues.com/images/1818.png",
+    "https://adoptmetradingvalues.com/images/78.png",
+    "https://adoptmetradingvalues.com/images/1483.png",
+    "https://adoptmetradingvalues.com/images/710.png",
+    "https://adoptmetradingvalues.com/images/72.png",
+    "https://adoptmetradingvalues.com/images/2871.png",
+    "https://adoptmetradingvalues.com/images/2155.png",
+    "https://adoptmetradingvalues.com/images/89.png",
+    "https://adoptmetradingvalues.com/images/1367.png",
+    "https://adoptmetradingvalues.com/images/109.png",
+    "https://adoptmetradingvalues.com/images/1784.png",
+    "https://adoptmetradingvalues.com/images/1482.png",
+    "https://adoptmetradingvalues.com/images/1478.png",
+    "https://adoptmetradingvalues.com/images/110.png",
+    "https://adoptmetradingvalues.com/images/2952.png",
+    "https://adoptmetradingvalues.com/images/2063.png",
+    "https://adoptmetradingvalues.com/images/90.png",
+    "https://adoptmetradingvalues.com/images/1393.png",
+    "https://adoptmetradingvalues.com/images/1564.png",
+    "https://adoptmetradingvalues.com/images/1564.png",
+    "https://adoptmetradingvalues.com/images/1614.png",
+    "https://adoptmetradingvalues.com/images/1437.png",
+    "https://adoptmetradingvalues.com/images/1031.png",
+    "https://adoptmetradingvalues.com/images/2513.png",
+    "https://adoptmetradingvalues.com/images/91.png",
+    "https://adoptmetradingvalues.com/images/140.png",
+    "https://adoptmetradingvalues.com/images/1507.png",
+    "https://adoptmetradingvalues.com/images/2332.png",
+    "https://adoptmetradingvalues.com/images/1217.png",
+    "https://adoptmetradingvalues.com/images/94.png",
+    "https://adoptmetradingvalues.com/images/1229.png",
+    "https://adoptmetradingvalues.com/images/102.png",
+    "https://adoptmetradingvalues.com/images/77.png",
+    "https://adoptmetradingvalues.com/images/57.png",
+    "https://adoptmetradingvalues.com/images/1857.png",
+    "https://adoptmetradingvalues.com/images/143.png",
+    "https://adoptmetradingvalues.com/images/2447.png",
+    "https://adoptmetradingvalues.com/images/3056.png",
+    "https://adoptmetradingvalues.com/images/3060.png",
+    "https://adoptmetradingvalues.com/images/1831.png",
+    "https://adoptmetradingvalues.com/images/2951.png",
+    "https://adoptmetradingvalues.com/images/1072.png",
+    "https://adoptmetradingvalues.com/images/96.png",
+    "https://adoptmetradingvalues.com/images/1222.png",
+    "https://adoptmetradingvalues.com/images/1865.png",
+    "https://adoptmetradingvalues.com/images/104.png",
+    "https://adoptmetradingvalues.com/images/1980.png",
+    "https://adoptmetradingvalues.com/images/144.png",
+    "https://adoptmetradingvalues.com/images/142.png",
+    "https://adoptmetradingvalues.com/images/1221.png",
+    "https://adoptmetradingvalues.com/images/1783.png",
+    "https://adoptmetradingvalues.com/images/1500.png",
+    "https://adoptmetradingvalues.com/images/2052.png",
+    "https://adoptmetradingvalues.com/images/2248.png",
+    "https://adoptmetradingvalues.com/images/1781.png",
+    "https://adoptmetradingvalues.com/images/1226.png",
+    "https://adoptmetradingvalues.com/images/1093.png",
+    "https://adoptmetradingvalues.com/images/1795.png",
+    "https://adoptmetradingvalues.com/images/2505.png",
+    "https://adoptmetradingvalues.com/images/118.png",
+    "https://adoptmetradingvalues.com/images/95.png",
+    "https://adoptmetradingvalues.com/images/107.png",
+    "https://adoptmetradingvalues.com/images/2950.png",
+    "https://adoptmetradingvalues.com/images/108.png",
+    "https://adoptmetradingvalues.com/images/2154.png",
+    "https://adoptmetradingvalues.com/images/37.png",
+    "https://adoptmetradingvalues.com/images/71.png",
+    "https://adoptmetradingvalues.com/images/1544.png",
+    "https://adoptmetradingvalues.com/images/1218.png",
+    "https://adoptmetradingvalues.com/images/1218.png",
+    "https://adoptmetradingvalues.com/images/3081.png",
+    "https://adoptmetradingvalues.com/images/1540.png",
+    "https://adoptmetradingvalues.com/images/100.png",
+    "https://adoptmetradingvalues.com/images/100.png",
+    "https://adoptmetradingvalues.com/images/1929.png",
+    "https://adoptmetradingvalues.com/images/1791.png",
+    "https://adoptmetradingvalues.com/images/2153.png",
+    "https://adoptmetradingvalues.com/images/1067.png",
+    "https://adoptmetradingvalues.com/images/1202.png",
+    "https://adoptmetradingvalues.com/images/1741.png",
+    "https://adoptmetradingvalues.com/images/2247.png",
+    "https://adoptmetradingvalues.com/images/1830.png",
+    "https://adoptmetradingvalues.com/images/111.png",
+    "https://adoptmetradingvalues.com/images/2923.png",
+    "https://adoptmetradingvalues.com/images/2923.png",
+    "https://adoptmetradingvalues.com/images/1726.png",
+    "https://adoptmetradingvalues.com/images/1542.png",
+    "https://adoptmetradingvalues.com/images/1223.png",
+    "https://adoptmetradingvalues.com/images/122.png",
+    "https://adoptmetradingvalues.com/images/86.png",
+    "https://adoptmetradingvalues.com/images/1294.png",
+    "https://adoptmetradingvalues.com/images/114.png",
+    "https://adoptmetradingvalues.com/images/2463.png"
+    ];
+
+    // Build grid
+    const cont = document.getElementById('mascotas');
+    const total = Math.min(datos.length, imagenes.length);
+
+    function createCard(i){
+      const d = datos[i];
+      const url = imagenes[i];
+
+      const pet = document.createElement('div');
+      pet.className = 'pet';
+      pet.dataset.prop = d.prop === 'Ninguna' ? '' : d.prop;
+
+      const imgWrap = document.createElement('div');
+      imgWrap.className = 'pet-image';
+
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = ''; // removemos nombres visibles (no mostrar "Mascota X")
+      img.loading = 'lazy';
+
+      imgWrap.appendChild(img);
+      pet.appendChild(imgWrap);
+
+      const count = document.createElement('div');
+      count.className = 'count-badge';
+      count.textContent = 'x' + d.cantidad;
+      pet.appendChild(count);
+
+      const meta = document.createElement('div');
+      meta.className = 'pet-meta';
+      meta.textContent = `Cantidad: ${d.cantidad}`;
+      pet.appendChild(meta);
+
+      // props
+      if(d.prop && d.prop !== 'Ninguna'){
+        const props = document.createElement('div');
+        props.className = 'props';
+        const parts = String(d.prop).split(',').map(s=>s.trim()).filter(Boolean);
+        parts.forEach(p=>{
+          const b = document.createElement('div');
+          const cls = (['R','N','M'].includes(p)) ? p : null;
+          b.className = 'badge' + (cls ? ' ' + cls : '');
+          b.textContent = p;
+          b.title = p; // tooltip
+          props.appendChild(b);
+        });
+        pet.appendChild(props);
+      } else {
+        const empty = document.createElement('div');
+        empty.className = 'no-props';
+        empty.textContent = 'Sin propiedades';
+        pet.appendChild(empty);
+      }
+
+      return pet;
+    }
+
+    // initial render
+    function renderAll(){
+      cont.innerHTML = '';
+      for(let i=0;i<total;i++){
+        cont.appendChild(createCard(i));
+      }
+    }
+    renderAll();
+
+    // Filtering buttons
+    const buttons = document.querySelectorAll('.btn[data-filter]');
+    buttons.forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        buttons.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        applyFilter(filter);
+      });
+    });
+    function applyFilter(filter){
+      const cards = Array.from(cont.children);
+      cards.forEach(c=>{
+        const prop = c.dataset.prop || '';
+        if(filter === 'all') c.style.display = '';
+        else c.style.display = prop.includes(filter) ? '' : 'none';
+      });
+    }
+
+    // --- BUY ALL behavior ---
+    const buyBtn = document.getElementById('buyAll');
+    const modalRoot = document.getElementById('modalRoot');
+    const paypalForm = document.getElementById('paypalForm');
+    const paypalCustom = document.getElementById('paypalCustom');
+
+    // compute totals
+    const totalItems = datos.length;
+    const totalQuantity = datos.reduce((s,d)=>s + (Number(d.cantidad)||0), 0);
+
+    buyBtn.addEventListener('click', ()=>{
+      // show modal
+      const modalHTML = `
+        <div class="modal-backdrop" id="confirmModal">
+          <div class="modal" role="dialog" aria-modal="true">
+            <h3>Comprar todas las mascotas</h3>
+            <p>Vas a comprar <strong>${totalItems} tipos</strong> (total de <strong>${totalQuantity}</strong> unidades) por <strong>$20.00 USD</strong>. El pago será enviado a <strong>trotoliso@gmail.com</strong>.</p>
+            <p>¿Deseas continuar? Serás redirigido a PayPal en una pestaña nueva.</p>
+            <div class="actions">
+              <button class="btn cancel" id="cancelBuy">Cancelar</button>
+              <button class="btn confirm" id="confirmBuy">Pagar $20</button>
+            </div>
+          </div>
+        </div>`;
+      modalRoot.innerHTML = modalHTML;
+      modalRoot.style.display = 'block';
+
+      document.getElementById('cancelBuy').addEventListener('click', closeModal);
+      document.getElementById('confirmBuy').addEventListener('click', ()=>{
+        // Prepare custom data for PayPal (simple summary)
+        const summary = JSON.stringify({
+          tipos: totalItems,
+          unidades: totalQuantity,
+          concepto: 'Compra de todas las mascotas',
+          email: 'trotoliso@gmail.com',
+          usuario: 'Keikeiaa'
+        });
+        paypalCustom.value = summary;
+
+        // submit form (opens PayPal in new tab)
+        paypalForm.submit();
+
+        // close modal
+        closeModal();
+      });
+    });
+
+    function closeModal(){
+      modalRoot.innerHTML = '';
+      modalRoot.style.display = 'none';
+    }
+
+    // keyboard quick filters (A = All, R, N, M)
+    document.addEventListener('keydown', (e)=>{
+      const key = e.key.toUpperCase();
+      if(['A','R','N','M'].includes(key)){
+        document.querySelectorAll('.btn[data-filter]').forEach(b=>{
+          if((key === 'A' && b.dataset.filter==='all') || b.dataset.filter===key) b.click();
+        });
+      }
+    });
+
+  </script>
+</body>
+</html>
